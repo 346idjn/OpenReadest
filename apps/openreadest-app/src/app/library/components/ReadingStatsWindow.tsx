@@ -35,12 +35,6 @@ const formatDateShort = (dateStr: string): string => {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 };
 
-const formatDateWeekday = (dateStr: string): string => {
-  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-  const d = new Date(dateStr);
-  return `${d.getMonth() + 1}/${d.getDate()} 周${weekdays[d.getDay()]}`;
-};
-
 const ReadingStatsWindow: React.FC<ReadingStatsWindowProps> = ({ isOpen, onClose }) => {
   const _ = useTranslation();
   const { appService } = useEnv();
