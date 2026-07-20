@@ -12,8 +12,6 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -40,7 +38,8 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install NDK
-        run: sdkmanager "ndk;28.2.13676358"
+        run: |
+          ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "ndk;28.2.13676358"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -50,18 +49,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Copy PDF.js and simplecc vendor files
+      - name: Copy vendor files
         run: pnpm --filter @openreadest/app setup-vendors
 
-      - name: Init Tauri Android project
+      - name: Init and build Android
         working-directory: apps/openreadest-app
         run: |
+          export NDK_HOME="$ANDROID_HOME/ndk/28.2.13676358"
           rm -rf src-tauri/gen/android
           pnpm tauri android init
-
-      - name: Build Android APK
-        working-directory: apps/openreadest-app
-        run: pnpm tauri android build --apk true
+          pnpm tauri android build --apk true
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
