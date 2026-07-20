@@ -4,8 +4,6 @@ import { useReadingStatsStore } from '@/store/readingStatsStore';
 
 const STATS_FILENAME = 'reading-stats.json';
 
-export const getStatsPath = () => STATS_FILENAME;
-
 export const loadReadingStats = async (appService: AppService): Promise<ReadingStatsData | null> => {
   try {
     const exists = await appService.exists(STATS_FILENAME, 'Data');
@@ -25,16 +23,5 @@ export const saveReadingStats = async (appService: AppService): Promise<void> =>
     await appService.writeFile(STATS_FILENAME, 'Data', JSON.stringify(data));
   } catch (err) {
     console.error('Failed to save reading stats:', err);
-  }
-};
-
-export const getStatsFileSize = async (appService: AppService): Promise<number> => {
-  try {
-    const exists = await appService.exists(STATS_FILENAME, 'Data');
-    if (!exists) return 0;
-    const stats = await appService.stats(STATS_FILENAME, 'Data');
-    return stats.size;
-  } catch {
-    return 0;
   }
 };
