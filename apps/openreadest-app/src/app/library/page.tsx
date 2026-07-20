@@ -70,6 +70,7 @@ import ModalPortal from '@/components/ModalPortal';
 import TransferQueuePanel from './components/TransferQueuePanel';
 import WebDavCenterWindow from './components/WebDavCenterWindow';
 import WebDavAutoSyncRunner from './components/WebDavAutoSyncRunner';
+import { ReadingStatsGlobalWindow } from './components/ReadingStatsWindow';
 
 const LEGACY_DATA_PROMPT_SESSION_KEY = 'openreadest:legacy-data-prompted';
 
@@ -916,6 +917,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       )}
       <WebDavAutoSyncRunner />
       <WebDavCenterWindow />
+      <ReadingStatsGlobalWindow />
       <AboutWindow />
       <SponsorWindow />
       <UpdateWindow />

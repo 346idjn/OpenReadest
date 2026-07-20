@@ -21,6 +21,7 @@ import Annotator from './annotator/Annotator';
 import FootnotePopup from './FootnotePopup';
 import HintInfo from './HintInfo';
 import DoubleBorder from './DoubleBorder';
+import ReadingTracker from './ReadingTracker';
 
 interface BooksGridProps {
   bookKeys: string[];
@@ -130,6 +131,11 @@ const BooksGrid: React.FC<BooksGridProps> = ({ bookKeys, onCloseBook }) => {
               config={config}
               gridInsets={gridInsets}
               contentInsets={contentInsets}
+            />
+            <ReadingTracker
+              bookKey={bookKey}
+              bookTitle={book.title}
+              currentPage={pageinfo?.current ?? 0}
             />
             {viewSettings.vertical && viewSettings.scrolled && (
               <>

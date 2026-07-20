@@ -9,6 +9,9 @@ export const READEST_WEBDAV_BOOKS_DIR = `${READEST_WEBDAV_ROOT_DIRNAME}/Books`;
 export const getRemoteSyncStatePath = () => `${READEST_WEBDAV_SYSTEM_DIR}/webdav-sync-state.json`;
 export const getLocalSyncStatePath = () => `webdav/${READEST_WEBDAV_ROOT_DIRNAME}/webdav-sync-state.json`;
 
+export const getRemoteReadingStatsPath = () => `${READEST_WEBDAV_SYSTEM_DIR}/reading-stats.json`;
+export const getLocalReadingStatsPath = () => 'reading-stats.json';
+
 export const getLocalLibraryPath = () => getLibraryFilename();
 export const getRemoteLibraryPath = () => `${READEST_WEBDAV_BOOKS_DIR}/library.json`;
 

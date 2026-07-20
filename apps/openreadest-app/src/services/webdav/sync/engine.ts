@@ -5,7 +5,7 @@ import { WebDavClient } from '../client/WebDavClient';
 import { WebDavProfile, WebDavConflictItem, WebDavSyncLogItem, WebDavSyncProgress } from '../models';
 import { computeLocalFingerprint } from './fingerprint';
 import { createEmptyWebDavSyncState, WebDavSyncStateEntry, WebDavSyncStateV1 } from './state';
-import { getLocalSyncStatePath, getRemoteBookPaths, getRemoteLibraryPath, getRemoteSyncStatePath, getLocalBookPaths, getLocalLibraryPath, READEST_WEBDAV_BOOKS_DIR, READEST_WEBDAV_ROOT_DIRNAME, READEST_WEBDAV_SYSTEM_DIR } from './paths';
+import { getLocalSyncStatePath, getRemoteBookPaths, getRemoteLibraryPath, getRemoteSyncStatePath, getLocalBookPaths, getLocalLibraryPath, READEST_WEBDAV_BOOKS_DIR, READEST_WEBDAV_ROOT_DIRNAME, READEST_WEBDAV_SYSTEM_DIR, getLocalReadingStatsPath, getRemoteReadingStatsPath } from './paths';
 
 type SyncCallbacks = {
   onProgress?: (progress: WebDavSyncProgress) => void;
@@ -137,6 +137,7 @@ export const syncWebDavSelection = async (
     includeConfig?: boolean;
     includeCovers?: boolean;
     includeLibrary?: boolean;
+    includeReadingStats?: boolean;
     dryRun?: boolean;
   },
   callbacks?: SyncCallbacks,
@@ -161,11 +162,13 @@ export const syncWebDavSelection = async (
   const includeBookFiles = options.includeBookFiles ?? true;
   const includeConfig = options.includeConfig ?? true;
   const includeCovers = options.includeCovers ?? true;
+  const includeReadingStats = options.includeReadingStats ?? true;
 
   const items: Array<{
     key: string;
     localPath?: string;
     remotePath: string;
+    base: 'Books' | 'Data';
   }> = [];
 
   if (includeLibrary) {
@@ -173,6 +176,16 @@ export const syncWebDavSelection = async (
       key: 'Books/library.json',
       localPath: getLocalLibraryPath(),
       remotePath: getRemoteLibraryPath(),
+      base: 'Books',
+    });
+  }
+
+  if (includeReadingStats) {
+    items.push({
+      key: 'System/reading-stats.json',
+      localPath: getLocalReadingStatsPath(),
+      remotePath: getRemoteReadingStatsPath(),
+      base: 'Data',
     });
   }
 
@@ -184,6 +197,7 @@ export const syncWebDavSelection = async (
         key: `Books/${local.bookFile}`,
         localPath: local.bookFile,
         remotePath: remote.bookFile,
+        base: 'Books',
       });
     }
     if (includeCovers) {
@@ -191,6 +205,7 @@ export const syncWebDavSelection = async (
         key: `Books/${local.coverFile}`,
         localPath: local.coverFile,
         remotePath: remote.coverFile,
+        base: 'Books',
       });
     }
     if (includeConfig) {
@@ -198,6 +213,7 @@ export const syncWebDavSelection = async (
         key: `Books/${local.configFile}`,
         localPath: local.configFile,
         remotePath: remote.configFile,
+        base: 'Books',
       });
     }
   }
@@ -229,7 +245,7 @@ export const syncWebDavSelection = async (
 
     const baseEntry = state.entries[item.key] ?? {};
     const localFingerprint = item.localPath
-      ? await computeLocalFingerprint(appService, item.localPath, 'Books')
+      ? await computeLocalFingerprint(appService, item.localPath, item.base)
       : null;
 
     const remoteList = await client.propfind(item.remotePath, { depth: '0' });
@@ -278,9 +294,9 @@ export const syncWebDavSelection = async (
           } else {
             const dirPath = item.localPath!.split('/').slice(0, -1).join('/');
             if (dirPath) {
-              await appService.createDir(dirPath, 'Books', true).catch(() => {});
+              await appService.createDir(dirPath, item.base, true).catch(() => {});
             }
-            await appService.writeFile(item.localPath!, 'Books', res.data);
+            await appService.writeFile(item.localPath!, item.base, res.data);
             log('download', item.key, 'completed');
           }
         } else {
@@ -289,7 +305,7 @@ export const syncWebDavSelection = async (
       } else {
         await ensureRemoteDirsForFile(client, item.remotePath);
         if (!options.dryRun) {
-          const data = (await appService.readFile(item.localPath!, 'Books', isJsonPath(item.localPath!) ? 'text' : 'binary')) as
+          const data = (await appService.readFile(item.localPath!, item.base, isJsonPath(item.localPath!) ? 'text' : 'binary')) as
             | string
             | ArrayBuffer;
           const body = typeof data === 'string' ? new TextEncoder().encode(data) : data;
@@ -306,7 +322,7 @@ export const syncWebDavSelection = async (
       callbacks?.onProgress?.({ ...progress });
       await ensureRemoteDirsForFile(client, item.remotePath);
       if (!options.dryRun) {
-        const data = (await appService.readFile(item.localPath!, 'Books', isJsonPath(item.localPath!) ? 'text' : 'binary')) as
+        const data = (await appService.readFile(item.localPath!, item.base, isJsonPath(item.localPath!) ? 'text' : 'binary')) as
           | string
           | ArrayBuffer;
         const body = typeof data === 'string' ? new TextEncoder().encode(data) : data;
@@ -328,9 +344,9 @@ export const syncWebDavSelection = async (
           if (item.localPath) {
             const dirPath = item.localPath.split('/').slice(0, -1).join('/');
             if (dirPath) {
-              await appService.createDir(dirPath, 'Books', true).catch(() => {});
+              await appService.createDir(dirPath, item.base, true).catch(() => {});
             }
-            await appService.writeFile(item.localPath, 'Books', res.data);
+            await appService.writeFile(item.localPath, item.base, res.data);
           }
           log('download', item.key, 'completed');
         }
@@ -342,7 +358,7 @@ export const syncWebDavSelection = async (
       callbacks?.onProgress?.({ ...progress });
       await ensureRemoteDirsForFile(client, item.remotePath);
       if (!options.dryRun) {
-        const data = (await appService.readFile(item.localPath!, 'Books', isJsonPath(item.localPath!) ? 'text' : 'binary')) as
+        const data = (await appService.readFile(item.localPath!, item.base, isJsonPath(item.localPath!) ? 'text' : 'binary')) as
           | string
           | ArrayBuffer;
         const body = typeof data === 'string' ? new TextEncoder().encode(data) : data;
@@ -363,9 +379,9 @@ export const syncWebDavSelection = async (
         } else {
           const dirPath = item.localPath!.split('/').slice(0, -1).join('/');
           if (dirPath) {
-            await appService.createDir(dirPath, 'Books', true).catch(() => {});
+            await appService.createDir(dirPath, item.base, true).catch(() => {});
           }
-          await appService.writeFile(item.localPath!, 'Books', res.data);
+          await appService.writeFile(item.localPath!, item.base, res.data);
           log('download', item.key, 'completed');
         }
       } else {

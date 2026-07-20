@@ -1053,5 +1053,22 @@
   "Page: {{number}}": "页面: {{number}}",
   "Annotation page number": "批注页码",
   "Translating...": "翻译中...",
-  "Show Battery Percentage": "显示电量百分比"
+  "Show Battery Percentage": "显示电量百分比",
+  "Reading Statistics": "阅读统计",
+  "No reading data yet": "暂无阅读数据",
+  "Start reading to track your statistics": "开始阅读以追踪您的阅读统计",
+  "Total Reading Time": "总阅读时长",
+  "Books Read": "已读书籍",
+  "Pages Read": "已读页数",
+  "Reading Streak": "连续阅读",
+  "days": "天",
+  "Period": "时间范围",
+  "Daily Reading Time": "每日阅读时长",
+  "This Week": "本周",
+  "This Month": "本月",
+  "Reading Time": "阅读时长",
+  "Pages": "页数",
+  "Days Read": "阅读天数",
+  "Most Read Books": "阅读最多的书",
+  "Close": "关闭"
 }

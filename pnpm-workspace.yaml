@@ -2,5 +2,10 @@ packages:
   - apps/*
   - packages/foliate-js
 
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
+
 onlyBuiltDependencies:
   - sharp

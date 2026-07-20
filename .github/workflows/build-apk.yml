@@ -1,0 +1,82 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-35 build-tools;35.0.0 ndk;27.0.12077973 platform-tools'
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=$(node -p "require('./apps/openreadest-app/package.json').version")" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Copy PDF.js and simplecc vendor files
+        working-directory: apps/openreadest-app
+        run: pnpm setup-vendors
+
+      - name: Init Tauri Android project
+        working-directory: apps/openreadest-app
+        run: |
+          rm -rf src-tauri/gen/android
+          pnpm tauri android init
+
+      - name: Build Android APK (universal)
+        working-directory: apps/openreadest-app
+        run: pnpm tauri android build --apk true
+
+      - name: Rename and upload APK
+        run: |
+          APK_DIR="apps/openreadest-app/src-tauri/gen/android/app/build/outputs/apk/universal/release"
+          UNIVERSAL_APK="OpenReadest_${VERSION}_universal.apk"
+          cp ${APK_DIR}/app-universal-release.apk ${UNIVERSAL_APK}
+
+          echo "## Android APK Build" >> $GITHUB_STEP_SUMMARY
+          echo "✅ APK generated: ${UNIVERSAL_APK}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-universal
+          path: OpenReadest_*.apk
+          retention-days: 30

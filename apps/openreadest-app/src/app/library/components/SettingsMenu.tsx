@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { PiGear } from 'react-icons/pi';
 import { PiSun, PiMoon } from 'react-icons/pi';
 import { TbSunMoon } from 'react-icons/tb';
-import { MdCloud } from 'react-icons/md';
+import { MdCloud, MdBarChart } from 'react-icons/md';
 
 import { invoke, PermissionState } from '@tauri-apps/api/core';
 import { isTauriAppPlatform, isWebAppPlatform } from '@/services/environment';
@@ -19,6 +19,7 @@ import { setSponsorDialogVisible } from '@/components/SponsorWindow';
 import { setUpdateDialogVisible } from '@/components/UpdateWindow';
 import { setMigrateDataDirDialogVisible } from '@/app/library/components/MigrateDataWindow';
 import { setWebDavCenterVisible } from '@/app/library/components/WebDavCenterWindow';
+import { setReadingStatsWindowVisible } from '@/app/library/components/ReadingStatsWindow';
 import { requestStoragePermission } from '@/utils/permission';
 import { saveSysSettings } from '@/helpers/settings';
 import { selectDirectory } from '@/utils/bridge';
@@ -54,6 +55,11 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ setIsDropdownOpen }) => {
 
   const openWebDavCenter = () => {
     setWebDavCenterVisible(true);
+    setIsDropdownOpen?.(false);
+  };
+
+  const openReadingStats = () => {
+    setReadingStatsWindowVisible(true);
     setIsDropdownOpen?.(false);
   };
 
@@ -190,6 +196,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ setIsDropdownOpen }) => {
       onCancel={() => setIsDropdownOpen?.(false)}
     >
       <MenuItem label={_('WebDAV')} Icon={MdCloud} onClick={openWebDavCenter} />
+      <MenuItem label={_('Reading Statistics')} Icon={MdBarChart} onClick={openReadingStats} />
       {isTauriAppPlatform() && !appService?.isMobile && (
         <MenuItem
           label={_('Auto Import on File Open')}

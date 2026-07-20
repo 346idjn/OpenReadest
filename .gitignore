@@ -53,3 +53,4 @@ result*
 /docs/*.md
 /apps/readest-app/public/support/sponsor-poster.jpg
 /.vscode/tasks.json
+.idea/
