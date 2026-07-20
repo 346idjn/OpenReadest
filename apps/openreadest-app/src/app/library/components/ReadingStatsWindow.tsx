@@ -4,8 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useReadingStatsStore } from '@/store/readingStatsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useEnv } from '@/context/EnvContext';
-import { loadReadingStats, saveReadingStats } from '@/services/readingStatsService';
-import { DailyReadingStats, StatsPeriod } from '@/types/readingStats';
+import { loadReadingStats } from '@/services/readingStatsService';
+import { StatsPeriod } from '@/types/readingStats';
 
 interface ReadingStatsWindowProps {
   isOpen: boolean;
